@@ -87,12 +87,12 @@ set_injection_years = 5 # Number of years to inject ash
 
 # CTLA Trunk Formula Technique
 condition_rating_ash = 0.50
-functional_limitations_ash = 0.10
+functional_limitations_ash = 0.15
 external_limitations_ash = 0.80
 depreciation_ash = condition_rating_ash * functional_limitations_ash * external_limitations_ash
 
 condition_rating_nonash = 0.75
-functional_limitations_nonash = 0.90
+functional_limitations_nonash = 0.95
 external_limitations_nonash = 0.90
 depreciation_non_ash = condition_rating_nonash * functional_limitations_nonash * external_limitations_nonash
 #endregion
