@@ -36,10 +36,45 @@ print(mortality_rates_by_age)
 
 # Management expenses
 tree_planting_and_establishment_expense = 849.91 # Cost ($) to plant and establish a 6 cm caliper tree.
-pruning_expense = 10 # Cost ($) to prune, based on DBH
 ash_tree_injections_expense = 3.325 # Cost ($) to inject tree per cm DBH
+
+# Define cost ranges for removal
+removal_cost_ranges = [
+    (0, 20, 105), # (Min DBH, Max DBH, pruning cost)
+    (21, 40, 305),
+    (41, 60, 855),
+    (61, 80, 1450),
+    (81, 100, 2950),
+    (101, 120, 2950),
+    (121, float('inf'), 5700)
+]
+
+def get_removal_cost_by_dbh(dbh):
+    """Get removal cost based on DBH, with error if out of range."""
+    for min_dbh, max_dbh, removal_cost in removal_cost_ranges:
+        if min_dbh <= dbh <= max_dbh:
+            return removal_cost
+    raise ValueError(f"DBH value {dbh} falls outside defined cost ranges.")
+
+# Define cost ranges for pruning
+pruning_cost_ranges = [
+    (0, 20, 50), # (Min DBH, Max DBH, pruning cost)
+    (21, 40, 100),
+    (41, 60, 150),
+    (61, 80, 200),
+    (81, 100, 250),
+    (101, 120, 300),
+    (121, float('inf'), 350)
+]
+
+def get_pruning_cost_by_dbh(dbh):
+    """Get pruning cost based on DBH, with error if out of range."""
+    for min_dbh, max_dbh, pruning_cost in pruning_cost_ranges:
+        if min_dbh <= dbh <= max_dbh:
+            return pruning_cost
+    raise ValueError(f"DBH value {dbh} falls outside defined cost ranges.")
+
 annual_inflation_rate = 0.02
-tree_removal_expense = 55.5 # Cost of felling and stump grinding per cm DBH
 #endregion
 
 ## ------------------------------------------------ SIMULATION SETTINGS ------------------------------------------------
@@ -90,54 +125,47 @@ for year in range(1, years + 1):
     total_tree_count = ash_tree_count
 
     # Calculate basal areas
-    ash_tree_basal_area = ((average_diameter_ash/2) ** 2) * pi * ash_tree_count
+    ash_tree_basal_area = ((average_diameter_ash / 2) ** 2) * pi * ash_tree_count
     total_tree_basal_area = ash_tree_basal_area
 
-    # Calculate individual expenses
-    pruning_cost = (ash_tree_count/7) * average_diameter_ash * pruning_expense * inflation_factor
-    removal_cost = dead_ash_tree_count * average_diameter_ash * tree_removal_expense * inflation_factor
-    tree_planting_and_establishment_cost = tree_planting_and_establishment_expense * inflation_factor
+    # Calculate individual expenses using lookup functions
+    pruning_cost = get_pruning_cost_by_dbh(average_diameter_ash) * (ash_tree_count / 7) * inflation_factor
+    removal_cost = get_removal_cost_by_dbh(average_diameter_ash) * dead_ash_tree_count * inflation_factor
 
     # Update cumulative costs
     cumulative_pruning_cost += pruning_cost
     cumulative_removal_cost += removal_cost
 
     # Calculate CTLA values (placeholder logic as needed)
-    ctla_value_ash = (ash_tree_basal_area * ((tree_planting_and_establishment_expense * inflation_factor) / ((starting_diameter_new / 2)**2))) * depreciation_ash
+    ctla_value_ash = (ash_tree_basal_area * ((tree_planting_and_establishment_expense * inflation_factor) / ((starting_diameter_new / 2) ** 2))) * depreciation_ash
 
     # Store results for the year in the list directly
     results_control_and_remove.append({
         'Year': year,
-
         'Ash Tree Count': ash_tree_count,
         'Non-Ash Tree Count': 0,
         'Total Tree Count': total_tree_count,
-
         'Ash Tree Basal Area': round(ash_tree_basal_area, 2),
         'Non-Ash Tree Basal Area': 0,
         'Total Tree Basal Area': round(total_tree_basal_area, 2),
-
-        'Cost of Tree Planting and Establishment': 0, # No tree planting in control simulation
+        'Cost of Tree Planting and Establishment': 0,  # No tree planting in control simulation
         'Cost of Pruning': round(pruning_cost, 2),
-        'Cost of Injection': 0, # No tree injection in control simulation
+        'Cost of Injection': 0,  # No tree injection in control simulation
         'Cost of Removal': round(removal_cost, 2),
         'Total Costs': round((pruning_cost + removal_cost), 2),
-
-        'Cumulative Cost of Tree Planting and Establishment': 0, # No tree planting in control simulation
+        'Cumulative Cost of Tree Planting and Establishment': 0,  # No tree planting in control simulation
         'Cumulative Cost of Pruning': round(cumulative_pruning_cost, 2),
-        'Cumulative Cost of Injection': 0, # No tree injection in control simulation
+        'Cumulative Cost of Injection': 0,  # No tree injection in control simulation
         'Cumulative Cost of Removal': round(cumulative_removal_cost, 2),
         'Cumulative Costs': round((cumulative_pruning_cost + cumulative_removal_cost), 2),
-
         'CTLA Value of Ash': round(ctla_value_ash, 2),
         'CTLA Value of Non-Ash': 0,
         'CTLA Value of All Trees': round(ctla_value_ash, 2),
-
         'Net Value of All Trees': round((ctla_value_ash - (cumulative_pruning_cost + cumulative_removal_cost)), 2)
     })
 
     # Update the inflation factor for the next year
-    inflation_factor *= 1 + (annual_inflation_rate)
+    inflation_factor *= 1 + annual_inflation_rate
 
 # After the loop, convert to DataFrame
 results_control_and_remove = pd.DataFrame(results_control_and_remove)
@@ -145,6 +173,7 @@ results_control_and_remove = pd.DataFrame(results_control_and_remove)
 # Display results
 print("Results of Control Simulation:\n\n", results_control_and_remove)
 #endregion
+
 
 ## ------------------ SIMULATION: CONTROL (NO FURTHER INTERVENTION) WITH COST OF REMOVAL AND REPLANT -------------------
 #region
@@ -170,7 +199,7 @@ for year in range(1, years + 1):
     # Apply mortality and update ash tree counts
     dead_ash_tree_count = int(ash_tree_count * ash_mortality_rate)
     ash_tree_count -= dead_ash_tree_count
-    removal_cost_ash = dead_ash_tree_count * average_diameter_ash * tree_removal_expense * inflation_factor
+    removal_cost_ash = get_removal_cost_by_dbh(average_diameter_ash) * dead_ash_tree_count * inflation_factor
 
     # Reset non-ash tree count, total diameter, and removal cost for non-ash trees each year
     non_ash_tree_count = 0
@@ -191,7 +220,7 @@ for year in range(1, years + 1):
         # Apply conditional cost logic
         if cohort['age'] >= 3:
             # Removal and replanting costs for trees older than 3 years
-            removal_cost_non_ash = dead_trees * cohort['diameter'] * tree_removal_expense * inflation_factor
+            removal_cost_non_ash = get_removal_cost_by_dbh(cohort['diameter']) * dead_trees * inflation_factor
             cumulative_removal_cost += removal_cost_non_ash
             replanting_cost_non_ash = dead_trees * tree_planting_and_establishment_expense * inflation_factor
             cumulative_planting_cost += replanting_cost_non_ash
@@ -225,7 +254,7 @@ for year in range(1, years + 1):
 
     # Calculate costs with inflation applied
     replanting_cost = dead_ash_tree_count * tree_planting_and_establishment_expense * inflation_factor
-    pruning_cost = (non_ash_tree_count / 7) * average_diameter_non_ash * pruning_expense * inflation_factor
+    pruning_cost = get_pruning_cost_by_dbh(average_diameter_non_ash) * (non_ash_tree_count / 7) * inflation_factor
     total_removal_cost = removal_cost_ash + removal_cost_non_ash
 
     # Update cumulative costs
@@ -336,7 +365,7 @@ for year in range(1, years + 1):
 
         # Conditional cost logic based on age
         if cohort['age'] >= 3:
-            removal_cost_non_ash = dead_trees * cohort['diameter'] * tree_removal_expense * inflation_factor
+            removal_cost_non_ash = get_removal_cost_by_dbh(cohort['diameter']) * dead_trees * inflation_factor
             cumulative_removal_cost += removal_cost_non_ash
             replanting_cost_non_ash = dead_trees * tree_planting_and_establishment_expense * inflation_factor
             cumulative_planting_cost += replanting_cost_non_ash
@@ -364,9 +393,9 @@ for year in range(1, years + 1):
     total_tree_count = ash_tree_count + non_ash_tree_count
 
     # Calculate costs with inflation applied
-    removal_cost_ash = trees_to_remove * average_diameter_ash * tree_removal_expense * inflation_factor
+    removal_cost_ash = get_removal_cost_by_dbh(average_diameter_ash) * trees_to_remove * inflation_factor
     replanting_cost = trees_to_remove * tree_planting_and_establishment_expense * inflation_factor
-    pruning_cost = (non_ash_tree_count / 7) * average_diameter_non_ash * pruning_expense * inflation_factor
+    pruning_cost = get_pruning_cost_by_dbh(average_diameter_non_ash) * (non_ash_tree_count / 7) * inflation_factor
     total_removal_cost = removal_cost_ash + removal_cost_non_ash
 
     # Update cumulative costs
@@ -457,7 +486,6 @@ for year in range(1, years + 1):
     # Update management expenses with inflation factor
     tree_planting_and_establishment_cost = tree_planting_and_establishment_expense * inflation_factor
     ash_tree_injections_cost = ash_tree_injections_expense * inflation_factor
-    tree_removal_cost = tree_removal_expense * inflation_factor
 
     if year <= set_removal_year:
         # Plant non-ash trees each year until the set removal year
@@ -472,16 +500,16 @@ for year in range(1, years + 1):
         injection_cost = (ash_tree_count / 2) * average_diameter_ash * ash_tree_injections_cost
         cumulative_injection_cost += injection_cost
 
-        # Calculate removal cost for naturally dead ash trees with inflation
-        removal_cost = trees_died * average_diameter_ash * tree_removal_cost
+        # Calculate removal cost for naturally dead ash trees with cost lookup and inflation
+        removal_cost = trees_died * get_removal_cost_by_dbh(average_diameter_ash) * inflation_factor
         cumulative_removal_cost += removal_cost
     else:
         # From set removal year onwards, start removing ash trees at the specified rate
         trees_to_remove = min(set_removal_rate, ash_tree_count)
         ash_tree_count -= trees_to_remove
 
-        # Calculate removal cost for manually removed ash trees with inflation
-        removal_cost = trees_to_remove * average_diameter_ash * tree_removal_cost
+        # Calculate removal cost for manually removed ash trees with cost lookup and inflation
+        removal_cost = trees_to_remove * get_removal_cost_by_dbh(average_diameter_ash) * inflation_factor
         cumulative_removal_cost += removal_cost
 
         # No injection cost beyond the set removal year
@@ -498,6 +526,7 @@ for year in range(1, years + 1):
     non_ash_tree_count = 0
     total_diameter_non_ash = 0
     removal_cost_non_ash = 0
+
     # Age-based mortality and diameter growth for each non-ash cohort
     surviving_cohorts = []
     for cohort in cohorts:
@@ -512,7 +541,7 @@ for year in range(1, years + 1):
         # Conditional cost logic based on age
         if cohort['age'] >= 3:
             # Apply both removal and replanting costs for trees older than 3 years
-            removal_cost_non_ash = dead_trees * cohort['diameter'] * tree_removal_cost
+            removal_cost_non_ash = dead_trees * get_removal_cost_by_dbh(cohort['diameter']) * inflation_factor
             cumulative_removal_cost += removal_cost_non_ash
             replanting_cost_non_ash = dead_trees * tree_planting_and_establishment_expense * inflation_factor
             cumulative_planting_cost += replanting_cost_non_ash
@@ -541,9 +570,9 @@ for year in range(1, years + 1):
     # Total tree count
     total_tree_count = ash_tree_count + non_ash_tree_count
 
-    # Pruning costs with inflation for ash and non-ash trees
-    pruning_cost_ash = (ash_tree_count / 7) * average_diameter_ash * pruning_expense * inflation_factor
-    pruning_cost_non_ash = (non_ash_tree_count / 7) * average_diameter_non_ash * pruning_expense * inflation_factor
+    # Pruning costs with cost lookup and inflation for ash and non-ash trees
+    pruning_cost_ash = (ash_tree_count / 7) * get_pruning_cost_by_dbh(average_diameter_ash) * inflation_factor
+    pruning_cost_non_ash = (non_ash_tree_count / 7) * get_pruning_cost_by_dbh(average_diameter_non_ash) * inflation_factor
     total_pruning_cost = pruning_cost_ash + pruning_cost_non_ash
     cumulative_pruning_cost += total_pruning_cost
 
@@ -553,10 +582,8 @@ for year in range(1, years + 1):
     total_tree_basal_area = ash_tree_basal_area + non_ash_tree_basal_area
 
     # CTLA values
-    ctla_value_ash = (tree_planting_and_establishment_cost / (
-                (starting_diameter_new / 2) ** 2)) * depreciation_ash * ash_tree_basal_area
-    ctla_value_non_ash = (tree_planting_and_establishment_cost / (
-                (starting_diameter_new / 2) ** 2)) * depreciation_non_ash * non_ash_tree_basal_area
+    ctla_value_ash = (tree_planting_and_establishment_cost / ((starting_diameter_new / 2) ** 2)) * depreciation_ash * ash_tree_basal_area
+    ctla_value_non_ash = (tree_planting_and_establishment_cost / ((starting_diameter_new / 2) ** 2)) * depreciation_non_ash * non_ash_tree_basal_area
     ctla_value_all_trees = ctla_value_ash + ctla_value_non_ash
 
     # Store results
@@ -575,24 +602,19 @@ for year in range(1, years + 1):
         'Cost of Pruning': round(total_pruning_cost, 2),
         'Cost of Injection': round(injection_cost, 2),
         'Cost of Removal': round(removal_cost + removal_cost_non_ash, 2),
-        'Total Costs': round(
-            replanting_cost + total_pruning_cost + injection_cost + removal_cost + removal_cost_non_ash, 2),
+        'Total Costs': round(replanting_cost + total_pruning_cost + injection_cost + removal_cost + removal_cost_non_ash, 2),
 
         'Cumulative Cost of Tree Planting and Establishment': round(cumulative_planting_cost, 2),
         'Cumulative Cost of Pruning': round(cumulative_pruning_cost, 2),
         'Cumulative Cost of Injection': round(cumulative_injection_cost, 2),
         'Cumulative Cost of Removal': round(cumulative_removal_cost, 2),
-        'Cumulative Costs': round(
-            cumulative_planting_cost + cumulative_pruning_cost + cumulative_injection_cost + cumulative_removal_cost,
-            2),
+        'Cumulative Costs': round(cumulative_planting_cost + cumulative_pruning_cost + cumulative_injection_cost + cumulative_removal_cost, 2),
 
         'CTLA Value of Ash': round(ctla_value_ash, 2),
         'CTLA Value of Non-Ash': round(ctla_value_non_ash, 2),
         'CTLA Value of All Trees': round(ctla_value_all_trees, 2),
 
-        'Net Value of All Trees': round(
-            ctla_value_all_trees - cumulative_planting_cost - cumulative_pruning_cost - cumulative_injection_cost - cumulative_removal_cost,
-            2)
+        'Net Value of All Trees': round(ctla_value_all_trees - cumulative_planting_cost - cumulative_pruning_cost - cumulative_injection_cost - cumulative_removal_cost, 2)
     })
 
     # Update the inflation factor for the next year
@@ -603,7 +625,8 @@ results_replant_inject_then_remove = pd.DataFrame(results_replant_inject_then_re
 
 # Display results
 print("Results of Replant, Inject, Then Remove Simulation:\n\n", results_replant_inject_then_remove)
-# endregion
+#endregion
+
 
 ## --------------------------------- SIMULATION: INJECT, PLANNED REMOVAL, AND REPLANT ---------------------------------
 #region
@@ -640,8 +663,8 @@ for year in range(1, years + 1):
         trees_died = int(ash_tree_count * injected_ash_mortality_rate)
         ash_tree_count -= trees_died
 
-        # Calculate removal cost for naturally dead ash trees
-        removal_cost = trees_died * average_diameter_ash * tree_removal_expense * inflation_factor
+        # Calculate removal cost for naturally dead ash trees using cost lookup
+        removal_cost = trees_died * get_removal_cost_by_dbh(average_diameter_ash) * inflation_factor
         cumulative_removal_cost += removal_cost
 
         # Replant dead ash trees as non-ash trees in a new cohort
@@ -657,8 +680,8 @@ for year in range(1, years + 1):
         trees_to_remove = min(set_removal_rate, ash_tree_count)
         ash_tree_count -= trees_to_remove
 
-        # Calculate removal cost for removed ash trees
-        removal_cost = trees_to_remove * average_diameter_ash * tree_removal_expense * inflation_factor
+        # Calculate removal cost for removed ash trees using cost lookup
+        removal_cost = trees_to_remove * get_removal_cost_by_dbh(average_diameter_ash) * inflation_factor
         cumulative_removal_cost += removal_cost
 
         # Replant the removed ash trees with non-ash trees in a new cohort
@@ -687,7 +710,8 @@ for year in range(1, years + 1):
 
         # Conditional cost logic based on age
         if cohort['age'] >= 3:
-            removal_cost_non_ash = dead_trees * cohort['diameter'] * tree_removal_expense * inflation_factor
+            # Calculate removal cost for dead non-ash trees using cost lookup
+            removal_cost_non_ash = dead_trees * get_removal_cost_by_dbh(cohort['diameter']) * inflation_factor
             cumulative_removal_cost += removal_cost_non_ash
             replanting_cost_non_ash = dead_trees * tree_planting_and_establishment_expense * inflation_factor
             cumulative_planting_cost += replanting_cost_non_ash
@@ -714,9 +738,9 @@ for year in range(1, years + 1):
     # Total tree count
     total_tree_count = ash_tree_count + non_ash_tree_count
 
-    # Calculate pruning costs with inflation
-    pruning_cost_ash = (ash_tree_count / 7) * average_diameter_ash * pruning_expense * inflation_factor
-    pruning_cost_non_ash = (non_ash_tree_count / 7) * average_diameter_non_ash * pruning_expense * inflation_factor
+    # Calculate pruning costs for ash and non-ash trees using cost lookup
+    pruning_cost_ash = (ash_tree_count / 7) * get_pruning_cost_by_dbh(average_diameter_ash) * inflation_factor
+    pruning_cost_non_ash = (non_ash_tree_count / 7) * get_pruning_cost_by_dbh(average_diameter_non_ash) * inflation_factor
     total_pruning_cost = pruning_cost_ash + pruning_cost_non_ash
     cumulative_pruning_cost += total_pruning_cost
 
@@ -772,6 +796,7 @@ results_inject_remove_and_replant = pd.DataFrame(results_inject_remove_and_repla
 print("Results of Inject, Remove, and Replant Simulation:\n\n", results_inject_remove_and_replant)
 #endregion
 
+
 ## ---------------------------------- SIMULATION: INJECT IN PERPETUITY WITH REMOVALS ----------------------------------
 #region
 # List to store results
@@ -802,12 +827,12 @@ for year in range(1, years + 1):
     trees_died = int(ash_tree_count * injected_ash_mortality_rate)
     ash_tree_count -= trees_died
 
-    # Calculate removal cost for dead ash trees with inflation
-    annual_removal_cost = trees_died * average_diameter_ash * tree_removal_expense * inflation_factor
+    # Calculate removal cost for dead ash trees using cost lookup with inflation
+    annual_removal_cost = trees_died * get_removal_cost_by_dbh(average_diameter_ash) * inflation_factor
     cumulative_removal_cost += annual_removal_cost
 
-    # Calculate pruning costs with inflation for ash trees
-    pruning_cost_ash = (ash_tree_count / 7) * average_diameter_ash * pruning_expense * inflation_factor
+    # Calculate pruning costs for ash trees using cost lookup with inflation
+    pruning_cost_ash = (ash_tree_count / 7) * get_pruning_cost_by_dbh(average_diameter_ash) * inflation_factor
     cumulative_pruning_cost += pruning_cost_ash
 
     # Basal area calculation for ash trees only
@@ -894,7 +919,7 @@ for year in range(1, years + 1):
     ash_tree_count -= trees_died
 
     # Calculate removal cost for dead ash trees with inflation
-    annual_removal_cost = trees_died * average_diameter_ash * tree_removal_expense * inflation_factor
+    annual_removal_cost = trees_died * get_removal_cost_by_dbh(average_diameter_ash) * inflation_factor
     cumulative_removal_cost += annual_removal_cost
 
     # Replant dead ash trees as new non-ash trees in a cohort with initial diameter
@@ -909,7 +934,6 @@ for year in range(1, years + 1):
     total_diameter_non_ash = 0  # To calculate the average diameter of non-ash trees
 
     # Update each cohort's age and diameter, apply mortality, and calculate removal costs
-    # Update each cohort's age and diameter, apply mortality, and calculate removal costs
     surviving_cohorts = []
     for cohort in cohorts:
         cohort['age'] += 1
@@ -923,7 +947,7 @@ for year in range(1, years + 1):
         # Check age to determine costs
         if cohort['age'] >= 3:
             # Removal and replanting costs for trees older than 3 years
-            removal_cost_non_ash = dead_trees * cohort['diameter'] * tree_removal_expense * inflation_factor
+            removal_cost_non_ash = dead_trees * get_removal_cost_by_dbh(cohort['diameter']) * inflation_factor
             cumulative_removal_cost += removal_cost_non_ash
             replanting_cost_non_ash = dead_trees * tree_planting_and_establishment_expense * inflation_factor
             cumulative_planting_cost += replanting_cost_non_ash
@@ -949,8 +973,8 @@ for year in range(1, years + 1):
         average_diameter_non_ash = starting_diameter_new
 
     # Calculate pruning costs with inflation for both ash and non-ash trees
-    pruning_cost_ash = (ash_tree_count / 7) * average_diameter_ash * pruning_expense * inflation_factor
-    pruning_cost_non_ash = (non_ash_tree_count / 7) * average_diameter_non_ash * pruning_expense * inflation_factor
+    pruning_cost_ash = (ash_tree_count / 7) * get_pruning_cost_by_dbh(average_diameter_ash) * inflation_factor
+    pruning_cost_non_ash = (non_ash_tree_count / 7) * get_pruning_cost_by_dbh(average_diameter_non_ash) * inflation_factor
     total_pruning_cost = pruning_cost_ash + pruning_cost_non_ash
     cumulative_pruning_cost += total_pruning_cost
 
