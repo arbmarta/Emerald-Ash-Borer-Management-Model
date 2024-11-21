@@ -5,7 +5,7 @@ set_removal_year = 5 # Select year in which ash trees begin to be removed
 set_injection_years = 5 # Number of years to inject ash
 set_planting_year = 1 # Year where tree planting starts
 
-from Simulation_Parameters_Overall import *
+from Simulation_Parameters import *
 from Simulation_Module import run_simulations, report_year_20_values, report_year_20_counts
 from Simulation_Plotter import plot_simulations
 
