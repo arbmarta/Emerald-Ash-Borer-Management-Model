@@ -151,7 +151,7 @@ def simulate_remove_then_replant(set_removal_rate):
 def format_with_commas(x, pos):
     return f"{int(x):,}"
 
-def plot_simulations(simulation_results, legend_title):
+def plot_simulations_colour(simulation_results, legend_title):
     # Define scenarios and corresponding colors for plotting
     scenarios = simulation_results.keys()
     colors = ['red', 'blue', 'green', 'orange']
@@ -167,7 +167,7 @@ def plot_simulations(simulation_results, legend_title):
     ]
 
     # Create figure for plots
-    fig, axs = plt.subplots(3, 2, figsize=(18, 12), dpi=900)  # Create a 3x2 grid for subplots
+    fig, axs = plt.subplots(3, 2, figsize=(18, 12), dpi=400)  # Create a 3x2 grid for subplots
 
     # Flatten axes for easier iteration
     axs = axs.flatten()
@@ -201,7 +201,60 @@ def plot_simulations(simulation_results, legend_title):
 
     # Adjust layout to avoid overlap and reserve space for the legend
     plt.tight_layout(rect=[0, 0, 0.85, 1])  # Reserve space on the right for the legend
-    plt.savefig(f"{legend_title}.jpeg", format='jpeg', dpi=900)
+    plt.savefig(f"{legend_title} - Color.jpeg", format='jpeg', dpi=400)
+
+def plot_simulations_black_and_white(simulation_results, legend_title):
+    # Define scenarios and corresponding colors for plotting
+    scenarios = simulation_results.keys()
+    colors = ['black', 'black', 'black', 'black']
+    line_style = ['solid', 'dotted', 'dashed', 'dashdot']
+
+    # Metrics to plot
+    metrics = [
+        ('Total Tree Count', 'Count', 'Total Tree Count Over Time'),
+        ('Total Tree Basal Area', 'Basal Area (cubic meters)', 'Total Tree Basal Area Over Time'),
+        ('Total Costs', 'Cost (per $1k)', 'Annual Costs'),
+        ('Cumulative Costs', 'Cost (per $1k)', 'Cumulative Costs Over Time'),
+        ('CTLA Value of All Trees', 'CTLA Value (per $1k)', 'CTLA Value of All Trees Over Time'),
+        ('Net Value of All Trees', 'Net Value (per $1k)', 'Net Value of All Trees Over Time'),
+    ]
+
+    # Create figure for plots
+    fig, axs = plt.subplots(3, 2, figsize=(18, 12), dpi=400)  # Create a 3x2 grid for subplots
+
+    # Flatten axes for easier iteration
+    axs = axs.flatten()
+
+    # Loop over each metric to create subplots
+    for idx, (metric, ylabel, title) in enumerate(metrics):
+        ax = axs[idx]  # Get the axis for the current subplot
+        lines = []  # Store plot lines for legend
+
+        for scenario, color, line in zip(scenarios, colors, line_style):
+            data = simulation_results[scenario]
+
+            # Scale Cumulative Costs to per $1,000
+            data_copy = data.copy()
+            if metric in ['Total Costs', 'Cumulative Costs', 'CTLA Value of All Trees', 'Net Value of All Trees']:
+                data_copy[metric] = data_copy[metric] / 1000  # Scale to per $1,000
+
+            line, = ax.plot(data['Year'], data_copy[metric], label=scenario, color=color, linestyle = line, linewidth = 2)
+            lines.append(line)  # Save line for legend
+        ax.set_xlabel('Year')
+        ax.set_ylabel(ylabel)
+        ax.set_title(title)
+        ax.grid(False)
+
+        # Apply the formatter to add commas to y-axis numbers
+        ax.yaxis.set_major_formatter(FuncFormatter(format_with_commas))
+
+        # Add legend only to the last subplot
+        if idx == 3:
+            ax.legend(loc='center left', bbox_to_anchor=(1.05, 0.5), title="Legend", fontsize=12, title_fontsize=14, ncol=1)
+
+    # Adjust layout to avoid overlap and reserve space for the legend
+    plt.tight_layout(rect=[0, 0, 0.85, 1])  # Reserve space on the right for the legend
+    plt.savefig(f"{legend_title} - Black and White.jpeg", format='jpeg', dpi=400)
 
 ## ------------------------------------------------- LOOP THE FUNCTION -------------------------------------------------
 # Loop through each injection year
@@ -216,7 +269,8 @@ for removal_rate in set_removal_rate:
     all_results[f'Rate of Tree Removals per Year: {removal_rate}'] = results
 
 # Plot the simulation results
-plot_simulations(all_results, legend_title)
+plot_simulations_colour(all_results, legend_title)
+plot_simulations_black_and_white(all_results, legend_title)
 
 ## ----------------------------------------------- OPTIMIZATION FUNCTION -----------------------------------------------
 # Extract and print the removal rate achieving the highest value for each metric at Year 20
