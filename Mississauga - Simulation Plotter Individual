@@ -1,0 +1,124 @@
+import matplotlib.pyplot as plt
+from matplotlib.lines import Line2D
+from matplotlib.ticker import FuncFormatter
+
+# Formatter function to add commas
+def format_with_commas(x, pos):
+    return f"{int(x):,}"
+
+def plot_simulations_colour_standalone(simulation_results_future_value):
+    scenarios = simulation_results_future_value.keys()
+    colors = ['red', 'pink', 'blue', 'orange', 'green', 'purple', 'black']
+
+    metrics = [
+        ('Total Tree Count', 'Tree Count', 'Total Tree Count Over Time'),
+        ('Total Tree Basal Area', 'Basal Area (cubic meters)', 'Total Tree Basal Area Over Time'),
+        ('Total Costs', 'Cost (per $1k)', 'Inflation-Adjusted Annual Costs'),
+        ('Cumulative Costs', 'Cost (per $1k)', 'Inflation-Adjusted Cumulative Costs Over Time'),
+        ('CTLA Value of All Trees', 'CTLA Value (per $1k)', 'Inflation-Adjusted CTLA Value of All Trees Over Time'),
+        ('Net Value of All Trees', 'Net Value (per $1k)', 'Inflation-Adjusted Net Value of All Trees Over Time'),
+    ]
+
+    for metric, ylabel, title in metrics:
+        plt.figure(figsize=(10, 6), dpi=600)  # Create a new figure for each metric
+        for scenario, color in zip(scenarios, colors):
+            data = simulation_results_future_value[scenario].copy()
+
+            # Scale to per $1,000 if applicable
+            if metric in ['Total Costs', 'Cumulative Costs', 'CTLA Value of All Trees', 'Net Value of All Trees']:
+                data[metric] = data[metric] / 1000
+
+            plt.plot(data['Year'], data[metric], label=scenario, color=color, linewidth=2)
+
+        plt.xlabel('Year')
+        plt.ylabel(ylabel)
+        plt.title(title)
+        plt.grid()
+
+        # Set x-axis ticks to start from 2 and increment by 2
+        plt.xticks(range(2, int(data['Year'].max()) + 1, 2))
+
+        # Apply a formatter to add commas to y-axis numbers
+        plt.gca().yaxis.set_major_formatter(FuncFormatter(format_with_commas))
+
+        # Add a legend on the left
+        custom_labels = {
+            'Control and Remove': 'Remove Dead Ash Only',
+            'Control, Remove, then Replant': 'Remove Dead Ash then Replant',
+            'Remove then Replant': 'Preemptive Removal then Replant',
+            'Replant, Inject, then Remove': 'Replant, Inject, then Preemptive Removal',
+            'Inject, Remove, and Replant': 'Inject, Preemptive Removal, and Replant',
+            'Inject in Perpetuity': 'Injection in Perpetuity',
+            'Inject in Perpetuity with Replanting': 'Injection in Perpetuity with Replanting',
+        }
+
+        custom_handles = [Line2D([0], [0], color=color, linewidth=2) for color in colors]
+        renamed_labels = [custom_labels.get(scenario, scenario) for scenario in scenarios]
+
+        plt.legend(custom_handles, renamed_labels, loc='center left', bbox_to_anchor=(1.02, 0.5),
+                   fontsize=10, title="Scenarios", title_fontsize=14)
+        plt.tight_layout()
+
+        # Save each figure separately
+        filename = title.replace(' ', '_') + '_Colour_standalone.jpeg'
+        plt.savefig(filename, format='jpeg')
+        plt.show()
+
+def plot_simulations_black_and_white_standalone(simulation_results_future_value):
+    scenarios = simulation_results_future_value.keys()
+    colors = ['black'] * 7
+    lines = ['solid', 'dotted', 'dashed', 'dashdot', (0, (3, 5, 1, 5, 1, 5)), (0, (3, 10, 1, 10)), (0, (5, 5))]
+
+    metrics = [
+        ('Total Tree Count', 'Tree Count', 'Total Tree Count Over Time'),
+        ('Total Tree Basal Area', 'Basal Area (cubic meters)', 'Total Tree Basal Area Over Time'),
+        ('Total Costs', 'Cost (per $1k)', 'Inflation-Adjusted Annual Costs'),
+        ('Cumulative Costs', 'Cost (per $1k)', 'Inflation-Adjusted Cumulative Costs Over Time'),
+        ('CTLA Value of All Trees', 'CTLA Value (per $1k)', 'Inflation-Adjusted CTLA Value of All Trees Over Time'),
+        ('Net Value of All Trees', 'Net Value (per $1k)', 'Inflation-Adjusted Net Value of All Trees Over Time'),
+    ]
+
+    for metric, ylabel, title in metrics:
+        plt.figure(figsize=(10, 6), dpi=600)  # Create a new figure for each metric
+        for scenario, line in zip(scenarios, lines):
+            data = simulation_results_future_value[scenario].copy()
+
+            # Scale to per $1,000 if applicable
+            if metric in ['Total Costs', 'Cumulative Costs', 'CTLA Value of All Trees', 'Net Value of All Trees']:
+                data[metric] = data[metric] / 1000
+
+            plt.plot(data['Year'], data[metric], label=scenario, color='black', linestyle=line, linewidth=2)
+
+        plt.xlabel('Year')
+        plt.ylabel(ylabel)
+        plt.title(title)
+        plt.grid()
+
+        # Set x-axis ticks to start from 2 and increment by 2
+        plt.xticks(range(2, int(data['Year'].max()) + 1, 2))
+
+        # Apply a formatter to add commas to y-axis numbers
+        plt.gca().yaxis.set_major_formatter(FuncFormatter(format_with_commas))
+
+        # Add a legend on the left
+        custom_labels = {
+            'Control and Remove': 'Remove Dead Ash Only',
+            'Control, Remove, then Replant': 'Remove Dead Ash then Replant',
+            'Remove then Replant': 'Preemptive Removal then Replant',
+            'Replant, Inject, then Remove': 'Replant, Inject, then Preemptive Removal',
+            'Inject, Remove, and Replant': 'Inject, Preemptive Removal, and Replant',
+            'Inject in Perpetuity': 'Injection in Perpetuity',
+            'Inject in Perpetuity with Replanting': 'Injection in Perpetuity with Replanting',
+        }
+
+        custom_handles = [Line2D([0], [0], color='black', linestyle=line, linewidth=2) for line in lines]
+        renamed_labels = [custom_labels.get(scenario, scenario) for scenario in scenarios]
+
+        plt.legend(custom_handles, renamed_labels, loc='center left', bbox_to_anchor=(1.02, 0.5),
+                   fontsize=10, title="Scenarios", title_fontsize=14, handlelength = 4, handletextpad=1)
+        plt.tight_layout()
+
+        # Save each figure separately
+        filename = title.replace(' ', '_') + '_Black_and_White_standalone.jpeg'
+        plt.savefig(filename, format='jpeg')
+        plt.show()
