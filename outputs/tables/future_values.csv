@@ -1,0 +1,64 @@
+Metric,Scenario,Year 1,Year 5,Year 10,Year 15,Year 20
+Cumulative Costs,Control and Remove,110983.71,385034.21,524192.07,574369.52,592528.11
+CTLA Value of All Trees,Control and Remove,2670484.21,1289018.37,516702.19,208223.11,85646.35
+Net Value of All Trees,Control and Remove,2559500.5,903984.16,-7489.88,-366146.42,-506881.76
+Ash Tree Count,Control and Remove,1192.0,488.0,160.0,53.0,18.0
+Non-Ash Tree Count,Control and Remove,0.0,0.0,0.0,0.0,0.0
+Total Tree Count,Control and Remove,1192.0,488.0,160.0,53.0,18.0
+Ash Tree Basal Area,Control and Remove,706967.73,315259.37,114458.58,41776.89,15563.78
+Non-Ash Tree Basal Area,Control and Remove,0.0,0.0,0.0,0.0,0.0
+Total Tree Basal Area,Control and Remove,706967.73,315259.37,114458.58,41776.89,15563.78
+Cumulative Costs,"Control, Remove, then Replant",344163.18,1245309.38,1807027.13,2081930.06,2253286.16
+CTLA Value of All Trees,"Control, Remove, then Replant",2670484.21,2681657.86,3658703.07,5671545.56,8665262.99
+Net Value of All Trees,"Control, Remove, then Replant",2326321.03,1436348.49,1851675.94,3589615.5,6411976.83
+Ash Tree Count,"Control, Remove, then Replant",1192.0,488.0,160.0,53.0,18.0
+Non-Ash Tree Count,"Control, Remove, then Replant",0.0,696.0,937.0,988.0,980.0
+Total Tree Count,"Control, Remove, then Replant",1192.0,1184.0,1097.0,1041.0,998.0
+Ash Tree Basal Area,"Control, Remove, then Replant",706967.73,315259.37,114458.58,41776.89,15563.78
+Non-Ash Tree Basal Area,"Control, Remove, then Replant",0.0,28834.06,58921.33,92794.49,131987.37
+Total Tree Basal Area,"Control, Remove, then Replant",706967.73,344093.42,173379.9,134571.38,147551.15
+Cumulative Costs,Remove then Replant,465101.14,1892003.6,2027460.09,2131366.16,2243685.5
+CTLA Value of All Trees,Remove then Replant,2978892.33,2504855.45,4411462.96,7134375.97,10705472.1
+Net Value of All Trees,Remove then Replant,2513791.19,612851.85,2384002.87,5003009.81,8461786.6
+Ash Tree Count,Remove then Replant,1090.0,0.0,0.0,0.0,0.0
+Non-Ash Tree Count,Remove then Replant,366.0,1121.0,1044.0,1004.0,964.0
+Total Tree Count,Remove then Replant,1456.0,1121.0,1044.0,1004.0,964.0
+Ash Tree Basal Area,Remove then Replant,646472.17,0.0,0.0,0.0,0.0
+Non-Ash Tree Basal Area,Remove then Replant,12033.16,51862.06,82727.3,121177.32,164691.17
+Total Tree Basal Area,Remove then Replant,658505.33,51862.06,82727.3,121177.32,164691.17
+Cumulative Costs,"Replant, Inject, then Remove",448391.68,2237470.55,3170089.34,3416662.16,3674760.81
+CTLA Value of All Trees,"Replant, Inject, then Remove",3780933.73,6366844.55,5624681.43,9374108.9,14392759.45
+Net Value of All Trees,"Replant, Inject, then Remove",3332542.05,4129374.01,2454592.09,5957446.74,10717998.64
+Ash Tree Count,"Replant, Inject, then Remove",1448.0,1293.0,0.0,0.0,0.0
+Non-Ash Tree Count,"Replant, Inject, then Remove",366.0,1395.0,1470.0,1475.0,1475.0
+Total Tree Count,"Replant, Inject, then Remove",1814.0,2688.0,1470.0,1475.0,1475.0
+Ash Tree Basal Area,"Replant, Inject, then Remove",858799.73,835308.11,0.0,0.0,0.0
+Non-Ash Tree Basal Area,"Replant, Inject, then Remove",12033.16,61109.12,105478.55,159219.17,221415.78
+Total Tree Basal Area,"Replant, Inject, then Remove",870832.89,896417.24,105478.55,159219.17,221415.78
+Cumulative Costs,"Inject, Remove, and Replant",141312.47,709895.37,2572430.86,2698438.13,2807073.4
+CTLA Value of All Trees,"Inject, Remove, and Replant",3299757.09,3742878.2,3014518.49,5293078.96,8495626.77
+Net Value of All Trees,"Inject, Remove, and Replant",3158444.62,3032982.83,442087.63,2594640.84,5688553.37
+Ash Tree Count,"Inject, Remove, and Replant",1448.0,1293.0,0.0,0.0,0.0
+Non-Ash Tree Count,"Inject, Remove, and Replant",38.0,158.0,1108.0,1051.0,1016.0
+Total Tree Count,"Inject, Remove, and Replant",1486.0,1451.0,1108.0,1051.0,1016.0
+Ash Tree Basal Area,"Inject, Remove, and Replant",858799.73,835308.11,0.0,0.0,0.0
+Non-Ash Tree Basal Area,"Inject, Remove, and Replant",1249.34,6780.92,56530.67,89902.91,130695.28
+Total Tree Basal Area,"Inject, Remove, and Replant",860049.08,842089.04,56530.67,89902.91,130695.28
+Cumulative Costs,Inject in Perpetuity,105290.54,524192.36,1043857.29,1559274.32,2068737.91
+CTLA Value of All Trees,Inject in Perpetuity,3244011.02,3415370.39,3626603.49,3826590.68,4020620.09
+Net Value of All Trees,Inject in Perpetuity,3138720.48,2891178.03,2582746.2,2267316.36,1951882.18
+Ash Tree Count,Inject in Perpetuity,1448.0,1293.0,1123.0,974.0,845.0
+Non-Ash Tree Count,Inject in Perpetuity,0.0,0.0,0.0,0.0,0.0
+Total Tree Count,Inject in Perpetuity,1448.0,1293.0,1123.0,974.0,845.0
+Ash Tree Basal Area,Inject in Perpetuity,858799.73,835308.11,803356.12,767748.87,730633.12
+Non-Ash Tree Basal Area,Inject in Perpetuity,0.0,0.0,0.0,0.0,0.0
+Total Tree Basal Area,Inject in Perpetuity,858799.73,835308.11,803356.12,767748.87,730633.12
+Cumulative Costs,Inject in Perpetuity with Replanting,141312.47,709895.37,1423330.86,2133630.82,2836561.09
+CTLA Value of All Trees,Inject in Perpetuity with Replanting,3299757.09,3742878.2,4497957.41,5589769.29,7150961.02
+Net Value of All Trees,Inject in Perpetuity with Replanting,3158444.62,3032982.83,3074626.55,3456138.47,4314399.93
+Ash Tree Count,Inject in Perpetuity with Replanting,1448.0,1293.0,1123.0,974.0,845.0
+Non-Ash Tree Count,Inject in Perpetuity with Replanting,38.0,158.0,278.0,386.0,480.0
+Total Tree Count,Inject in Perpetuity with Replanting,1486.0,1451.0,1401.0,1360.0,1325.0
+Ash Tree Basal Area,Inject in Perpetuity with Replanting,858799.73,835308.11,803356.12,767748.87,730633.12
+Non-Ash Tree Basal Area,Inject in Perpetuity with Replanting,1249.34,6780.92,16340.33,29947.58,48156.64
+Total Tree Basal Area,Inject in Perpetuity with Replanting,860049.08,842089.04,819696.45,797696.44,778789.75
